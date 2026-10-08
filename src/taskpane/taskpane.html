@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>PhishGuard</title>
+
+    <!-- Office JavaScript API -->
+    <script
+        type="text/javascript"
+        src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js">
+    </script>
+
+    <!-- Our CSS -->
+    <link href="taskpane.css" rel="stylesheet" type="text/css" />
+</head>
+
+
+<body>
+
+    <!-- Shown if the add-in isn't running inside Outlook -->
+    <section id="sideload-msg">
+        <h2>PhishGuard must be opened inside Outlook.</h2>
+    </section>
+
+
+    <!-- Main PhishGuard application -->
+    <main id="app-body" style="display: none;">
+
+        <!-- Header -->
+        <header>
+            <h1>PhishGuard</h1>
+            <p>Email Security Analysis</p>
+        </header>
+
+
+        <!-- Email Information -->
+        <section class="card">
+
+            <h2>Email Information</h2>
+
+            <div id="item-subject">
+                Open an email and select Analyze Email.
+            </div>
+
+        </section>
+
+
+        <!-- Analyze Button -->
+        <button id="run">
+            Analyze Email
+        </button>
+
+
+        <!-- Future analysis results -->
+        <section class="card">
+
+            <h2>Analysis Results</h2>
+
+            <div id="analysis-results">
+                This email has not been analyzed yet.
+            </div>
+
+        </section>
+
+
+        <!-- Footer -->
+        <footer>
+            <p>PhishGuard</p>
+        </footer>
+
+    </main>
+
+</body>
+
+</html>

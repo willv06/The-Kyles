@@ -1,0 +1,403 @@
+/* ================================
+   PhishGuard Outlook Add-in
+   ================================ */
+
+   * {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background-color: #f4f6f8;
+    color: #242424;
+}
+
+
+/* ================================
+   Main Application
+   ================================ */
+
+#app-body {
+    width: 100%;
+    min-height: 100vh;
+}
+
+
+/* ================================
+   Header
+   ================================ */
+
+header {
+    background-color: #12344d;
+    color: white;
+    padding: 20px;
+
+    border-bottom: 3px solid #0078d4;
+}
+
+header h1 {
+    margin: 0;
+
+    font-size: 27px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+header p {
+    margin: 4px 0 0;
+
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+
+    text-transform: uppercase;
+
+    color: #c9dbe7;
+}
+
+
+/* ================================
+   Cards
+   ================================ */
+
+.card {
+    margin: 14px;
+    padding: 18px;
+
+    background-color: white;
+
+    border: 1px solid #dde2e7;
+    border-radius: 8px;
+
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.card h2 {
+    margin: 0 0 18px;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    color: #12344d;
+}
+
+
+/* ================================
+   Email Information
+   ================================ */
+
+#item-subject {
+    font-size: 14px;
+    line-height: 1.5;
+
+    color: #242424;
+
+    overflow-wrap: anywhere;
+}
+
+#item-subject b {
+    display: inline-block;
+
+    margin-bottom: 2px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    color: #4a4a4a;
+}
+
+
+/* ================================
+   Email Fields
+   ================================ */
+
+   .email-field {
+    margin-bottom: 22px;
+}
+
+.field-label,
+.stat-label {
+    margin-bottom: 5px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    color: #6b7280;
+
+    letter-spacing: 0.7px;
+}
+
+.field-value {
+    font-size: 14px;
+    line-height: 1.5;
+
+    color: #242424;
+}
+
+
+/* ================================
+   Sender Information
+   ================================ */
+
+.sender-name {
+    margin-bottom: 2px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    color: #242424;
+}
+
+.sender-address {
+    font-size: 13px;
+
+    color: #606770;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* ================================
+   Link and Attachment Cards
+   ================================ */
+
+.email-stats {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+}
+
+.stat-card {
+    min-width: 0;
+
+    padding: 12px;
+
+    background-color: #f7f9fb;
+
+    border: 1px solid #e1e5e8;
+    border-radius: 6px;
+}
+
+.stat-count {
+    margin-bottom: 1px;
+
+    font-size: 24px;
+    font-weight: 600;
+
+    color: #12344d;
+}
+
+.stat-description {
+    margin-bottom: 8px;
+
+    font-size: 12px;
+
+    color: #6b7280;
+}
+
+
+/* ================================
+   Expandable Details
+   ================================ */
+
+details {
+    margin-top: 7px;
+}
+
+summary {
+    display: inline-block;
+
+    color: #0078d4;
+
+    cursor: pointer;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    transition: color 0.15s ease;
+}
+
+summary:hover {
+    color: #005a9e;
+    text-decoration: underline;
+}
+
+.details-content {
+    margin-top: 8px;
+    padding: 8px 10px;
+
+    max-height: 180px;
+    overflow-y: auto;
+
+    background-color: #f7f9fa;
+
+    border: 1px solid #e1e5e8;
+    border-radius: 5px;
+}
+
+.detail-item {
+    padding: 7px 2px;
+
+    font-size: 12px;
+    line-height: 1.4;
+
+    color: #4b4b4b;
+
+    border-bottom: 1px solid #e5e8eb;
+
+    overflow-wrap: anywhere;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+
+/* ================================
+   Analyze Button
+   ================================ */
+
+#run {
+    display: block;
+
+    width: calc(100% - 28px);
+
+    margin: 14px;
+    padding: 13px 16px;
+
+    border: none;
+    border-radius: 6px;
+
+    background-color: #0078d4;
+    color: white;
+
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+
+    transition:
+        background-color 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.05s ease;
+}
+
+#run:hover {
+    background-color: #106ebe;
+
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+#run:active {
+    background-color: #005a9e;
+
+    transform: translateY(1px);
+}
+
+#run:focus-visible {
+    outline: 3px solid rgba(0, 120, 212, 0.3);
+    outline-offset: 2px;
+}
+
+
+/* ================================
+   Analysis Results
+   ================================ */
+
+#analysis-results {
+    padding: 15px;
+
+    font-size: 13px;
+    line-height: 1.5;
+
+    color: #5f6368;
+    background-color: #f7f8fa;
+
+    border: 1px solid #eceff1;
+    border-left: 4px solid #9aa0a6;
+    border-radius: 5px;
+}
+
+#analysis-results b {
+    color: #12344d;
+
+    font-weight: 600;
+}
+
+
+/* ================================
+   Sideload Message
+   ================================ */
+
+#sideload-msg {
+    padding: 30px 20px;
+
+    text-align: center;
+}
+
+#sideload-msg h2 {
+    margin: 0;
+
+    font-size: 18px;
+    font-weight: 500;
+
+    color: #12344d;
+}
+
+
+/* ================================
+   Footer
+   ================================ */
+
+footer {
+    padding: 10px 20px 18px;
+
+    font-size: 11px;
+    text-align: center;
+
+    color: #929292;
+}
+
+footer p {
+    margin: 0;
+}
+
+
+/* ================================
+   Small Screen Adjustments
+   ================================ */
+
+@media (max-width: 400px) {
+
+    header {
+        padding: 18px 16px;
+    }
+
+    header h1 {
+        font-size: 24px;
+    }
+
+    .card {
+        margin: 12px;
+        padding: 16px;
+    }
+
+    #run {
+        width: calc(100% - 24px);
+
+        margin: 12px;
+    }
+}
