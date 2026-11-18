@@ -1,79 +1,77 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>PhishGuard</title>
 
     <!-- Office JavaScript API -->
-    <script
-        type="text/javascript"
-        src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js">
-    </script>
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
 
-    <!-- Our CSS -->
+    <!-- Styles for the task pane -->
     <link href="taskpane.css" rel="stylesheet" type="text/css" />
 </head>
-
-
 <body>
-
-    <!-- Shown if the add-in isn't running inside Outlook -->
+    <!-- Shown when the add-in is not running in Outlook -->
     <section id="sideload-msg">
-        <h2>PhishGuard must be opened inside Outlook.</h2>
+        <h2>Open PhishGuard inside Outlook.</h2>
     </section>
 
-
-    <!-- Main PhishGuard application -->
     <main id="app-body" style="display: none;">
-
-        <!-- Header -->
-        <header>
+        <header class="app-header">
             <h1>PhishGuard</h1>
-            <p>Email Security Analysis</p>
+            <p>Email security analysis</p>
         </header>
 
-
-        <!-- Email Information -->
-        <section class="card">
-
-            <h2>Email Information</h2>
-
-            <div id="item-subject">
-                Open an email and select Analyze Email.
+        <section class="card" aria-labelledby="email-heading">
+            <div class="section-heading">
+                <h2 id="email-heading">Email details</h2>
             </div>
-
+            <div id="item-subject" aria-live="polite">
+                Select an email to view its details.
+            </div>
         </section>
 
+        <!-- JS enables this button when the selected email is ready. -->
+        <button id="run" type="button" disabled>Analyze email</button>
 
-        <!-- Analyze Button -->
-        <button id="run">
-            Analyze Email
-        </button>
-
-
-        <!-- Future analysis results -->
-        <section class="card">
-
-            <h2>Analysis Results</h2>
-
-            <div id="analysis-results">
-                This email has not been analyzed yet.
+        <section class="card" aria-labelledby="results-heading">
+            <div class="section-heading">
+                <h2 id="results-heading">Analysis results</h2>
+                <span class="section-caption">Rule-based checks</span>
             </div>
-
+            <div id="analysis-results" aria-live="polite">
+                <p class="empty-state">This email has not been analyzed yet.</p>
+            </div>
         </section>
 
+        <!-- Separate from the rule-based risk score; no AI call is made here. -->
+        <section class="card" id="ai-section" aria-labelledby="ai-heading">
+            <div class="section-heading">
+                <h2 id="ai-heading">AI assessment</h2>
+                <span id="ai-status" class="status-badge">Not connected</span>
+            </div>
+            <div id="phishguard-ai-slot">
+                <p class="ai-description">
+                    When AI is connected, this section will review the email's
+                    wording and context for possible phishing signs.
+                </p>
+                <details class="ai-details">
+                    <summary>What will the AI look for?</summary>
+                    <ul>
+                        <li>Urgent or threatening language</li>
+                        <li>Requests for passwords or personal information</li>
+                        <li>Impersonation and unusual instructions</li>
+                    </ul>
+                </details>
+                <p class="small-note">No AI assessment has been performed.</p>
+            </div>
+        </section>
 
-        <!-- Footer -->
         <footer>
-            <p>PhishGuard</p>
+            <p>PhishGuard · Results are guidance, not a guarantee of safety.</p>
         </footer>
-
     </main>
-
 </body>
-
 </html>

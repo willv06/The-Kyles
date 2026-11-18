@@ -9,6 +9,8 @@
 /* global document, Office, DOMParser, window, fetch, URL */
 
 
+let analysisSequence = 0;
+
 /* ================================
    Start PhishGuard
    ================================ */
@@ -55,17 +57,103 @@ function escapeHTML(value) {
 
 
 /* ================================
+   AI Assessment Panel (UI Only)
+   ================================ */
+
+// The AI model and its API are someone else's responsibility.
+// For now, this function shows a clear "not connected" state.
+function buildAIAnalysisHTML(aiResult = null) {
+  if (!aiResult) {
+    return `
+      <p class="ai-description">
+        When AI is connected, this section will review the email's
+        wording and context for possible phishing signs.
+      </p>
+      <details class="ai-details">
+        <summary>What will the AI look for?</summary>
+        <ul>
+          <li>Urgent or threatening language</li>
+          <li>Requests for passwords or personal information</li>
+          <li>Impersonation and unusual instructions</li>
+        </ul>
+      </details>
+      <p class="small-note">No AI assessment has been performed.</p>
+    `;
+  }
+
+  // Expected shape: { verdict: "suspicious" | "not_suspicious" | "uncertain",
+  //                   summary: "Short explanation", reasons: ["Reason 1", "Reason 2"] }
+  const summary = escapeHTML(aiResult.summary || "AI analysis completed.");
+  const reasons = Array.isArray(aiResult.reasons) ? aiResult.reasons : [];
+  const reasonsHTML = reasons.length
+    ? `<ul>${reasons.map((reason) => `<li>${escapeHTML(reason)}</li>`).join("")}</ul>`
+    : "<p>No specific indicators were provided.</p>";
+
+  return `
+    <p class="ai-description">${summary}</p>
+    <details class="ai-details">
+      <summary>View AI indicators</summary>
+      ${reasonsHTML}
+    </details>
+    <p class="small-note">
+      AI results may be incorrect. Review the evidence before taking action.
+    </p>
+  `;
+}
+
+function renderAIAnalysis(result = null) {
+  const slot = document.getElementById("phishguard-ai-slot");
+  const badge = document.getElementById("ai-status");
+  if (!slot || !badge) return;
+
+  let label = "Not connected";
+  let className = "status-badge";
+  if (result) {
+    const verdict = String(result.verdict || "uncertain").toLowerCase();
+    if (verdict === "suspicious") {
+      label = "Potential phishing";
+      className += " status-badge--alert";
+    } else if (verdict === "not_suspicious") {
+      label = "No strong warning signs";
+      className += " status-badge--clear";
+    } else {
+      label = "Needs review";
+    }
+  }
+
+  badge.className = className;
+  badge.textContent = label;
+  slot.innerHTML = buildAIAnalysisHTML(result);
+}
+
+// Future integration: call this with the AI response, and the email
+// object originally sent for analysis. That prevents stale results
+// from appearing when someone selects a different message.
+export function updateAIAnalysis(result, analyzedEmail) {
+  if (!analyzedEmail || window.phishGuardEmail !== analyzedEmail) return;
+  window.phishGuardAIResult = result;
+  renderAIAnalysis(result);
+}
+
+/* ================================
    Load Email
    ================================ */
 
 export async function loadEmail() {
 
-  // clear the previous email's information
+  // Cancel stale UI updates whenever the user switches messages.
+  analysisSequence++;
   window.phishGuardEmail = null;
+  window.phishGuardAIResult = null;
+  renderAIAnalysis(null);
 
-  // reset the analysis results
-  document.getElementById("analysis-results").textContent =
-    "This email has not been analyzed yet.";
+  const runButton = document.getElementById("run");
+  runButton.disabled = true;
+  runButton.textContent = "Analyze email";
+
+  // Reset the previous email's analysis results.
+  document.getElementById("analysis-results").innerHTML =
+    '<p class="empty-state">This email has not been analyzed yet.</p>';
 
   // grab the selected email from Outlook
   const item = Office.context.mailbox.item;
@@ -302,10 +390,8 @@ export async function loadEmail() {
 
       };
 
-      console.log(
-        "PhishGuard Email Data:",
-        window.phishGuardEmail
-      );
+      // Only enable Analyze once the email body has loaded.
+      runButton.disabled = false;
 
     }
   );
@@ -639,58 +725,26 @@ function analyzeAllLinks(links) {
    ================================ */
 
 function buildLinkAnalysisHTML(linkResults) {
-
   if (linkResults.length === 0) {
-
-    return `
-      <b>All-Link Analysis</b>
-      <br><br>
-      No links were found in this email.
-    `;
-
+    return "<p>No links were found in this email.</p>";
   }
 
-  let html = `
-    <b>All-Link Analysis (${linkResults.length} links)</b>
-    <br><br>
-  `;
-
-  linkResults.forEach((result, index) => {
-
+  return linkResults.map((result, index) => {
     const findingsHTML = result.findings.length === 0
       ? "No basic URL warnings detected."
       : result.findings.map((finding) =>
-          `<div>• ${escapeHTML(finding)}</div>`
+          `<div>${escapeHTML(finding)}</div>`
         ).join("");
 
-    html += `
+    return `
       <div class="detail-item">
-
-        <b>
-          Link ${index + 1}: ${escapeHTML(result.status)}
-        </b>
-
-        <div>
-          <b>Domain:</b>
-          ${escapeHTML(result.domain)}
-        </div>
-
-        <div>
-          <b>URL:</b>
-          ${escapeHTML(result.url)}
-        </div>
-
-        <div style="margin-top: 6px;">
-          ${findingsHTML}
-        </div>
-
+        <strong>Link ${index + 1}: ${escapeHTML(result.status)}</strong>
+        <div><b>Domain:</b> ${escapeHTML(result.domain)}</div>
+        <div><b>URL:</b> ${escapeHTML(result.url)}</div>
+        <div>${findingsHTML}</div>
       </div>
     `;
-
-  });
-
-  return html;
-
+  }).join("");
 }
 
 
@@ -933,147 +987,55 @@ function calculateRiskScore(senderAnalysis, linkResults, vtData) {
    ================================ */
 
 function buildRiskScoreHTML(risk, vtStatus) {
-
-  let color = "#16803c";
-
+  let riskClass = "";
   if (risk.score >= 75) {
-
-    color = "#c62828";
-
+    riskClass = "risk-card--critical";
   } else if (risk.score >= 50) {
-
-    color = "#e67e22";
-
+    riskClass = "risk-card--high";
   } else if (risk.score >= 25) {
-
-    color = "#6b8e23";
-
+    riskClass = "risk-card--elevated";
   }
-
-
-  /* ================================
-     Build Score Explanation
-     ================================ */
 
   const reasonsHTML = risk.reasons.length
     ? risk.reasons.map((reason) => `
         <div class="detail-item">
-
           <b>${escapeHTML(reason.section)}:</b>
-
           ${escapeHTML(reason.message)}
-
           <b>+${reason.points}</b>
-
         </div>
       `).join("")
-    : "<div>No weighted indicators detected.</div>";
+    : "<p>No weighted indicators detected.</p>";
 
-
-  // explain whether VirusTotal was included
-  let note = "";
-
+  let note;
   if (vtStatus === "checked") {
-
-    note =
-      "Includes VirusTotal detections for the first link only.";
-
+    note = "Includes VirusTotal detections for the first link only.";
   } else if (vtStatus === "pending") {
-
-    note =
-      "Provisional score: waiting for VirusTotal.";
-
+    note = "Provisional score: waiting for VirusTotal.";
   } else if (vtStatus === "unavailable") {
-
-    note =
-      "Provisional score: VirusTotal report unavailable.";
-
+    note = "Provisional score: VirusTotal report unavailable.";
   } else {
-
-    note =
-      "Local checks only; no links to check with VirusTotal.";
-
+    note = "Local checks only; no links to check with VirusTotal.";
   }
 
-
-  /* ================================
-     Display Risk Score
-     ================================ */
-
   return `
-    <div style="
-      padding: 16px;
-      margin-bottom: 16px;
-      border: 1px solid #e1e5e8;
-      border-left: 5px solid ${color};
-      border-radius: 6px;
-      background: #ffffff;
-    ">
-
-      <div style="
-        font-weight: 600;
-        color: #12344d;
-      ">
-        PHISHING RISK SCORE
+    <section class="risk-card ${riskClass}" aria-label="Rule-based phishing risk score">
+      <div class="risk-label">Phishing risk score</div>
+      <div class="risk-value">${risk.score}<span class="risk-max"> / 100</span></div>
+      <div class="risk-level">${risk.level}</div>
+      <div class="risk-track" role="progressbar" aria-label="Risk score"
+           aria-valuemin="0" aria-valuemax="100" aria-valuenow="${risk.score}">
+        <span class="risk-fill" style="width: ${risk.score}%;"></span>
       </div>
-
-      <div style="
-        font-size: 38px;
-        font-weight: 700;
-        color: ${color};
-        margin: 8px 0;
-      ">
-        ${risk.score}
-        <span style="font-size: 17px;">/100</span>
-      </div>
-
-      <div style="
-        font-weight: 600;
-        color: ${color};
-      ">
-        ${risk.level}
-      </div>
-
-      <div style="
-        height: 8px;
-        background: #e5e7eb;
-        border-radius: 4px;
-        margin-top: 12px;
-        overflow: hidden;
-      ">
-
-        <div style="
-          width: ${risk.score}%;
-          height: 100%;
-          background: ${color};
-        "></div>
-
-      </div>
-
-      <div style="margin-top: 14px;">
-
-        <b>Why this score?</b>
-
-        ${reasonsHTML}
-
-      </div>
-
-      <div style="
-        margin-top: 12px;
-        font-size: 11px;
-        color: #6b7280;
-      ">
-
-        ${note}
-
-        This is a rule-based risk score, not a phishing
-        probability. A low score does not guarantee safety.
-
-      </div>
-
-    </div>
+      <details class="risk-explanation">
+        <summary>Why this score?</summary>
+        <div class="risk-reasons">${reasonsHTML}</div>
+      </details>
+      <p class="small-note">
+        ${note} This is a rule-based score, not a phishing probability.
+        A low score does not guarantee safety.
+      </p>
+    </section>
   `;
-
 }
 
 
@@ -1108,77 +1070,64 @@ async function analyzeEmail() {
     analyzeAllLinks(email.links);
 
 
-  // build the sender warnings
-  const senderFindingsHTML =
-    senderAnalysis.findings.length === 0
-      ? "No basic sender warnings detected."
-      : senderAnalysis.findings.map((finding) =>
-          `<div>• ${escapeHTML(finding)}</div>`
-        ).join("");
-
+  // Short sender summary; technical findings can be expanded below.
+  const senderFindingsHTML = senderAnalysis.findings.length === 0
+    ? "<p>No basic sender warnings detected.</p>"
+    : senderAnalysis.findings.map((finding) =>
+        `<div class="detail-item">${escapeHTML(finding)}</div>`
+      ).join("");
 
   const senderHTML = `
-    <b>Sender Analysis</b>
-
-    <br><br>
-
-    <b>Domain:</b>
-    <br>
-
-    ${escapeHTML(senderAnalysis.domain)}
-
-    <br><br>
-
+    <div class="check-label">Sender domain</div>
+    <p>${escapeHTML(senderAnalysis.domain)}</p>
+    <div class="check-label">Findings</div>
     ${senderFindingsHTML}
   `;
 
-  const linksHTML =
-    buildLinkAnalysisHTML(linkResults);
-
+  const linksHTML = buildLinkAnalysisHTML(linkResults);
 
   /* ================================
      Update Analysis Results
      ================================ */
 
-  // this gets called whenever new analysis data is ready
-  function showResults(
-    virusTotalHTML,
-    vtData = null,
-    vtStatus = "unavailable"
-  ) {
+  // Ignore responses from old emails or old clicks on Analyze.
+  const thisAnalysis = ++analysisSequence;
+  const runButton = document.getElementById("run");
+  runButton.disabled = true;
+  runButton.textContent = "Analyzing...";
 
-    // don't display results for an email we switched away from
-    if (window.phishGuardEmail !== email) {
+  function finishAnalysis() {
+    if (window.phishGuardEmail === email && thisAnalysis === analysisSequence) {
+      runButton.disabled = false;
+      runButton.textContent = "Analyze email";
+    }
+  }
+
+  function showResults(virusTotalHTML, vtData = null, vtStatus = "unavailable") {
+    if (window.phishGuardEmail !== email || thisAnalysis !== analysisSequence) {
       return;
     }
 
-    const risk = calculateRiskScore(
-      senderAnalysis,
-      linkResults,
-      vtData
-    );
+    const risk = calculateRiskScore(senderAnalysis, linkResults, vtData);
+    const scoreHTML = buildRiskScoreHTML(risk, vtStatus);
 
-    const scoreHTML =
-      buildRiskScoreHTML(risk, vtStatus);
-
+    // The AI panel lives in taskpane.html, so this section is purely rule-based.
     results.innerHTML = `
       ${scoreHTML}
-
-      ${senderHTML}
-
-      <br><br>
-
-      ${linksHTML}
-
-      <br><br>
-
-      <b>VirusTotal Link Analysis</b>
-
-      <br><br>
-
-      ${virusTotalHTML}
+      <div class="checks-title">Technical details</div>
+      <details class="check-group">
+        <summary>Sender checks</summary>
+        <div class="check-content">${senderHTML}</div>
+      </details>
+      <details class="check-group">
+        <summary>Link checks (${linkResults.length})</summary>
+        <div class="check-content">${linksHTML}</div>
+      </details>
+      <details class="check-group">
+        <summary>VirusTotal (first link only)</summary>
+        <div class="check-content">${virusTotalHTML}</div>
+      </details>
     `;
-
   }
 
 
@@ -1193,6 +1142,7 @@ async function analyzeEmail() {
       null,
       "no-links"
     );
+    finishAnalysis();
 
     return;
   }
@@ -1318,6 +1268,8 @@ async function analyzeEmail() {
       "unavailable"
     );
 
+  } finally {
+    finishAnalysis();
   }
 
 }

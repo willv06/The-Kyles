@@ -1,13 +1,8 @@
-/* ================================
-   PhishGuard Outlook Add-in
-   ================================ */
+/* PhishGuard task pane: simple, compact, Outlook-like styling */
 
-   * {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-html,
-body {
+html, body {
     width: 100%;
     min-height: 100%;
     margin: 0;
@@ -16,388 +11,228 @@ body {
 
 body {
     font-family: "Segoe UI", Arial, sans-serif;
-    background-color: #f4f6f8;
+    background: #f4f6f8;
     color: #242424;
+    font-size: 13px;
+    line-height: 1.5;
 }
 
+#app-body { min-height: 100vh; }
 
-/* ================================
-   Main Application
-   ================================ */
-
-#app-body {
-    width: 100%;
-    min-height: 100vh;
-}
-
-
-/* ================================
-   Header
-   ================================ */
-
-header {
-    background-color: #12344d;
-    color: white;
-    padding: 20px;
-
+/* Header */
+.app-header {
+    padding: 18px 18px 16px;
+    background: #12344d;
+    color: #fff;
     border-bottom: 3px solid #0078d4;
 }
 
-header h1 {
+.app-header h1 {
     margin: 0;
-
-    font-size: 27px;
+    font-size: 24px;
     font-weight: 600;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.4px;
 }
 
-header p {
-    margin: 4px 0 0;
-
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-
-    text-transform: uppercase;
-
+.app-header p {
+    margin: 2px 0 0;
     color: #c9dbe7;
+    font-size: 12px;
 }
 
-
-/* ================================
-   Cards
-   ================================ */
-
+/* Sections */
 .card {
-    margin: 14px;
-    padding: 18px;
-
-    background-color: white;
-
-    border: 1px solid #dde2e7;
+    margin: 12px;
+    padding: 16px;
+    background: white;
+    border: 1px solid #dfe5ea;
     border-radius: 8px;
-
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.035);
 }
 
-.card h2 {
-    margin: 0 0 18px;
+.section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 13px;
+}
 
-    font-size: 16px;
+.section-heading h2 {
+    margin: 0;
+    font-size: 15px;
     font-weight: 600;
-
     color: #12344d;
 }
 
-
-/* ================================
-   Email Information
-   ================================ */
-
-#item-subject {
-    font-size: 14px;
-    line-height: 1.5;
-
-    color: #242424;
-
-    overflow-wrap: anywhere;
+.section-caption, .small-note {
+    font-size: 11px;
+    color: #667582;
 }
 
-#item-subject b {
-    display: inline-block;
-
-    margin-bottom: 2px;
-
-    font-size: 12px;
-    font-weight: 600;
-
-    color: #4a4a4a;
-}
-
-
-/* ================================
-   Email Fields
-   ================================ */
-
-   .email-field {
-    margin-bottom: 22px;
-}
-
-.field-label,
-.stat-label {
-    margin-bottom: 5px;
-
+/* Selected email details (produced by taskpane.js) */
+#item-subject { overflow-wrap: anywhere; }
+.email-field { margin-bottom: 16px; }
+.field-label, .stat-label, .check-label {
+    margin-bottom: 4px;
+    color: #667582;
     font-size: 11px;
     font-weight: 700;
-
-    color: #6b7280;
-
-    letter-spacing: 0.7px;
+    letter-spacing: 0.35px;
+    text-transform: uppercase;
 }
-
-.field-value {
-    font-size: 14px;
-    line-height: 1.5;
-
-    color: #242424;
-}
-
-
-/* ================================
-   Sender Information
-   ================================ */
-
-.sender-name {
-    margin-bottom: 2px;
-
-    font-size: 14px;
-    font-weight: 600;
-
-    color: #242424;
-}
-
-.sender-address {
-    font-size: 13px;
-
-    color: #606770;
-
-    overflow-wrap: anywhere;
-}
-
-
-/* ================================
-   Link and Attachment Cards
-   ================================ */
+.field-value { font-size: 14px; }
+.sender-name { font-size: 14px; font-weight: 600; }
+.sender-address { color: #586776; overflow-wrap: anywhere; }
 
 .email-stats {
     display: grid;
-
-    grid-template-columns: 1fr 1fr;
-
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
 }
 
 .stat-card {
     min-width: 0;
-
     padding: 12px;
-
-    background-color: #f7f9fb;
-
-    border: 1px solid #e1e5e8;
+    background: #f7f9fb;
+    border: 1px solid #e2e7eb;
     border-radius: 6px;
 }
+.stat-count { font-size: 24px; line-height: 1.2; font-weight: 600; color: #12344d; }
+.stat-description { margin: 4px 0 8px; font-size: 11px; color: #667582; }
 
-.stat-count {
-    margin-bottom: 1px;
-
-    font-size: 24px;
-    font-weight: 600;
-
-    color: #12344d;
-}
-
-.stat-description {
-    margin-bottom: 8px;
-
-    font-size: 12px;
-
-    color: #6b7280;
-}
-
-
-/* ================================
-   Expandable Details
-   ================================ */
-
-details {
-    margin-top: 7px;
-}
-
+/* Native expandable sections: no JavaScript needed for toggling */
+details { margin-top: 8px; }
 summary {
-    display: inline-block;
-
-    color: #0078d4;
-
+    color: #0069b5;
     cursor: pointer;
-
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
-
-    transition: color 0.15s ease;
 }
-
-summary:hover {
-    color: #005a9e;
-    text-decoration: underline;
-}
-
+summary:hover { color: #005a9e; text-decoration: underline; }
+summary:focus-visible { outline: 2px solid #0078d4; outline-offset: 3px; border-radius: 2px; }
 .details-content {
     margin-top: 8px;
     padding: 8px 10px;
-
-    max-height: 180px;
+    max-height: 160px;
     overflow-y: auto;
-
-    background-color: #f7f9fa;
-
-    border: 1px solid #e1e5e8;
+    background: #fff;
+    border: 1px solid #e2e7eb;
     border-radius: 5px;
 }
-
 .detail-item {
-    padding: 7px 2px;
-
+    padding: 7px 0;
+    border-bottom: 1px solid #edf0f3;
     font-size: 12px;
-    line-height: 1.4;
-
-    color: #4b4b4b;
-
-    border-bottom: 1px solid #e5e8eb;
-
     overflow-wrap: anywhere;
 }
+.detail-item:last-child { border-bottom: 0; }
 
-.detail-item:last-child {
-    border-bottom: none;
-}
-
-
-/* ================================
-   Analyze Button
-   ================================ */
-
+/* Analyze button */
 #run {
     display: block;
-
-    width: calc(100% - 28px);
-
-    margin: 14px;
-    padding: 13px 16px;
-
-    border: none;
+    width: calc(100% - 24px);
+    margin: 12px;
+    padding: 12px 15px;
+    border: 0;
     border-radius: 6px;
-
-    background-color: #0078d4;
-    color: white;
-
-    font-family: "Segoe UI", Arial, sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-
+    background: #0078d4;
+    color: #fff;
+    font: 600 14px "Segoe UI", Arial, sans-serif;
     cursor: pointer;
-
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-
-    transition:
-        background-color 0.15s ease,
-        box-shadow 0.15s ease,
-        transform 0.05s ease;
+    transition: background 0.15s ease;
 }
+#run:hover:not(:disabled) { background: #106ebe; }
+#run:active:not(:disabled) { background: #005a9e; }
+#run:focus-visible { outline: 3px solid #7dbef0; outline-offset: 2px; }
+#run:disabled { opacity: 0.62; cursor: not-allowed; }
 
-#run:hover {
-    background-color: #106ebe;
-
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+/* Rule-based score */
+#analysis-results { min-width: 0; }
+.empty-state { margin: 0; color: #667582; }
+.risk-card {
+    --risk-color: #16803c;
+    padding: 14px;
+    background: #f9fbfa;
+    border: 1px solid #e1e6e9;
+    border-left: 4px solid var(--risk-color);
+    border-radius: 6px;
 }
-
-#run:active {
-    background-color: #005a9e;
-
-    transform: translateY(1px);
-}
-
-#run:focus-visible {
-    outline: 3px solid rgba(0, 120, 212, 0.3);
-    outline-offset: 2px;
-}
-
-
-/* ================================
-   Analysis Results
-   ================================ */
-
-#analysis-results {
-    padding: 15px;
-
-    font-size: 13px;
-    line-height: 1.5;
-
-    color: #5f6368;
-    background-color: #f7f8fa;
-
-    border: 1px solid #eceff1;
-    border-left: 4px solid #9aa0a6;
+.risk-card--elevated { --risk-color: #827000; background: #fffdf5; }
+.risk-card--high { --risk-color: #b65a0a; background: #fffbf7; }
+.risk-card--critical { --risk-color: #bc3434; background: #fffafa; }
+.risk-label { color: #415262; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
+.risk-value { margin: 5px 0; font-size: 36px; font-weight: 700; line-height: 1.2; color: var(--risk-color); }
+.risk-max { font-size: 15px; font-weight: 500; }
+.risk-level { font-weight: 600; color: var(--risk-color); }
+.risk-track {
+    margin-top: 12px;
+    height: 7px;
+    overflow: hidden;
     border-radius: 5px;
+    background: #e4e8ec;
 }
+.risk-fill { display: block; height: 100%; background: var(--risk-color); }
+.risk-explanation { margin-top: 12px; }
+.risk-reasons { margin-top: 8px; }
+.risk-card .small-note { margin: 12px 0 0; line-height: 1.5; }
 
-#analysis-results b {
+.checks-title {
+    margin: 18px 0 8px;
     color: #12344d;
-
     font-weight: 600;
 }
-
-
-/* ================================
-   Sideload Message
-   ================================ */
-
-#sideload-msg {
-    padding: 30px 20px;
-
-    text-align: center;
+.check-group {
+    margin: 8px 0 0;
+    border: 1px solid #e2e7eb;
+    border-radius: 6px;
+    background: #fff;
 }
-
-#sideload-msg h2 {
-    margin: 0;
-
-    font-size: 18px;
-    font-weight: 500;
-
-    color: #12344d;
+.check-group > summary { padding: 10px 12px; }
+.check-content {
+    padding: 2px 12px 12px;
+    border-top: 1px solid #edf0f3;
+    overflow-wrap: anywhere;
+    font-size: 12px;
 }
+.check-content p { margin: 8px 0; }
+.check-content .check-label { margin-top: 10px; }
 
-
-/* ================================
-   Footer
-   ================================ */
-
-footer {
-    padding: 10px 20px 18px;
-
+/* AI: separate from the rule-based score */
+#ai-section { border-top: 2px solid #e3eaf0; }
+.status-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: #eef1f4;
+    color: #536373;
     font-size: 11px;
-    text-align: center;
-
-    color: #929292;
+    font-weight: 600;
 }
-
-footer p {
-    margin: 0;
+.status-badge--alert { background: #f9e9e9; color: #9b2828; }
+.status-badge--clear { background: #e9f4ec; color: #25623e; }
+.ai-description { margin: 0; color: #415262; }
+.ai-details {
+    padding-top: 9px;
+    margin-top: 12px;
+    border-top: 1px solid #e8ecef;
 }
+.ai-details ul { margin: 8px 0 0; padding-left: 20px; }
+.ai-details li { margin: 4px 0; }
+#phishguard-ai-slot .small-note { margin: 12px 0 0; }
 
+/* Starting screen and footer */
+#sideload-msg { padding: 28px 18px; text-align: center; }
+#sideload-msg h2 { margin: 0; font-size: 17px; color: #12344d; font-weight: 500; }
+footer { padding: 5px 18px 18px; text-align: center; color: #808e99; font-size: 11px; }
+footer p { margin: 0; }
 
-/* ================================
-   Small Screen Adjustments
-   ================================ */
-
-@media (max-width: 400px) {
-
-    header {
-        padding: 18px 16px;
-    }
-
-    header h1 {
-        font-size: 24px;
-    }
-
-    .card {
-        margin: 12px;
-        padding: 16px;
-    }
-
-    #run {
-        width: calc(100% - 24px);
-
-        margin: 12px;
-    }
+@media (max-width: 360px) {
+    .app-header { padding: 16px; }
+    .app-header h1 { font-size: 22px; }
+    .card { margin: 10px; padding: 13px; }
+    #run { width: calc(100% - 20px); margin: 10px; }
+    .email-stats { gap: 8px; }
+    .stat-card { padding: 9px; }
 }
